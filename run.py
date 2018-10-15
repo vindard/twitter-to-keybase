@@ -5,11 +5,11 @@ from subprocess import call
 
 # Files
 results = r'results'
-if not os.path.exists(results):
-    os.makedirs(results)
 temp = r'results/temp'
-if not os.path.exists(temp):
-    os.makedirs(temp)
+folders = [results, temp]
+for f in folders:
+    if not os.path.exists(f):
+        os.makedirs(f)
 dataOut = 'results/twitterListUsernames.py'
 resultsOut = 'results/onKeybase.txt'
 
