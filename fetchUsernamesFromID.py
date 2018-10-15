@@ -1,6 +1,5 @@
 import requests
 import re, os, ast
-import json
 
 # Files
 results = r'results' 
