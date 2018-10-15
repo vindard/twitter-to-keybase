@@ -4,13 +4,10 @@ import os, shutil
 from subprocess import call
 
 # Files
-results = r'results'
-temp = r'results/temp'
-folders = [results, temp]
+folders = [r'results', r'results/temp']
 for f in folders:
     if not os.path.exists(f):
         os.makedirs(f)
-dataOut = 'results/twitterListUsernames.py'
 resultsOut = 'results/onKeybase.txt'
 
 # get the data
