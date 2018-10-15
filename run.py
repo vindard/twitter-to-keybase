@@ -8,11 +8,18 @@ folders = [r'results', r'results/temp']
 for f in folders:
     if not os.path.exists(f):
         os.makedirs(f)
+# find the data file, assign to 'dataIn' variable
+for filename in os.listdir('data'):
+    if '.js' in filename:
+        datafile = 'data/' + filename
+        break
+# set the results file
 resultsOut = 'results/onKeybase.txt'
 
-# get the data
+# set Twitter lookup URL
 url_head = 'https://twitter.com/intent/user?user_id='
 
+# get the Twitter userID list data
 def getData(readFile):
     writeFile = 'results/temp/data.txt'
     with open(readFile, 'r') as r, open(writeFile, 'w') as w:
@@ -25,13 +32,10 @@ def getData(readFile):
     with open(writeFile, 'r') as w:
         return ast.literal_eval(w.read())
 
-# find the data file, assign to 'dataIn' variable
-for filename in os.listdir('data'):
-    if '.js' in filename:
-        datafile = 'data/' + filename
-        break
 dataIn = getData(datafile)
 
+
+# Processing functions
 def runMsg(username, firstRun, allUsernames, skipped):
     if firstRun:
         print(f"{len(allUsernames)} of {len(dataIn)}: @{username}")
@@ -99,6 +103,7 @@ def getTwitterUsernames():
 
     return allUsernames
 
+
 def run():
     allUsernames = getTwitterUsernames()
     usernamesOnKeybase = fetchKeybase(allUsernames)
@@ -107,6 +112,7 @@ def run():
     with open(resultsOut, 'w') as results:
         results.write("usernames = " + str(usernamesOnKeybase))
     print(f"Usernames on Keybase have been filtered and placed at '{resultsOut}'")
+
 
 if __name__ == "__main__":
     run()
