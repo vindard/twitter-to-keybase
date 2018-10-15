@@ -1,16 +1,37 @@
 import requests
-import re, os
+import re, os, ast
 import json
-from data.following import following as following
 
 # Files
 results = r'results' 
 if not os.path.exists(results):
     os.makedirs(results)
+temp = r'results/temp'
+if not os.path.exists(temp):
+    os.makedirs(temp)
 dataOut = 'results/twitterListUsernames.py'
 
 # get the data
 url_head = 'https://twitter.com/intent/user?user_id='
+
+def getData(readFile):
+    writeFile = 'results/temp/data.txt'
+    with open(readFile, 'r') as r, open(writeFile, 'w') as w:
+        for i, line in enumerate(r):
+            if i == 0:
+                trunc = re.findall('= (.*)', line)[0]
+                w.write(trunc+'\n')
+            else:
+                w.write(line)
+    with open(writeFile, 'r') as w:
+        return ast.literal_eval(w.read())
+
+# find the data file, assign to 'following' variable
+for filename in os.listdir('data'):
+    if '.js' in filename:
+        datafile = 'data/' + filename
+        break
+following = getData(datafile)
 
 my_following = []
 not_found = []
