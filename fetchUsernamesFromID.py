@@ -26,32 +26,32 @@ def getData(readFile):
     with open(writeFile, 'r') as w:
         return ast.literal_eval(w.read())
 
-# find the data file, assign to 'following' variable
+# find the data file, assign to 'dataIn' variable
 for filename in os.listdir('data'):
     if '.js' in filename:
         datafile = 'data/' + filename
         break
-following = getData(datafile)
+dataIn = getData(datafile)
 
-my_following = []
-not_found = []
+usernames = []
+skipped = []
 
 def runMsg(username, firstRun):
     if firstRun:
-        print(f"{len(my_following)} of {len(following)}: @{username}")
+        print(f"{len(usernames)} of {len(dataIn)}: @{username}")
     else:
-        print(f"{len(my_following)} of {len(following)}: @{username} | in skipped #{len(not_found)}")
+        print(f"{len(usernames)} of {len(dataIn)}: @{username} | in skipped #{len(skipped)}")
 
 def fetchUsername(userid, firstRun):
     url = url_head + userid
     data = requests.get(url)
     try:
         username = re.findall("\(@(.*?)\) on Twitter", data.text.replace("\n",""))[0]
-        my_following.append(username)
+        usernames.append(username)
         runMsg(username, firstRun)
     except IndexError:
-        not_found.append(userid)
-        print(f"{len(not_found)} in skipped: {userid} | twitter timeout, please wait...")
+        skipped.append(userid)
+        print(f"{len(skipped)} in skipped: {userid} | twitter timeout, please wait...")
         # Twitter pings start returning 404's every 100 lookups,
         # so this is to store failed attempts during timeout 
         # and retry at the end of the cycle.
@@ -59,17 +59,17 @@ def fetchUsername(userid, firstRun):
 
 def run():
     firstRun = True
-    for i in following:
+    for i in dataIn:
         userid = i['following']['accountId']
         fetchUsername(userid, firstRun)    
     firstRun = False
 
-    while len(not_found)>0:
-        userid = not_found.pop()    
+    while len(skipped)>0:
+        userid = skipped.pop()
         fetchUsername(userid, firstRun)
 
     myfile = open(dataOut, 'w')
-    myfile.write("usernames = "+str(my_following))
+    myfile.write("usernames = "+str(usernames))
     myfile.close()
 
 
