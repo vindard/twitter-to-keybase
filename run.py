@@ -32,22 +32,19 @@ for filename in os.listdir('data'):
         break
 dataIn = getData(datafile)
 
-allUsernames = []
-skipped = []
-
-def runMsg(username, firstRun):
+def runMsg(username, firstRun, allUsernames, skipped):
     if firstRun:
         print(f"{len(allUsernames)} of {len(dataIn)}: @{username}")
     else:
         print(f"{len(allUsernames)} of {len(dataIn)}: @{username} | in skipped #{len(skipped)}")
 
-def fetchUsername(userid, firstRun):
+def fetchUsername(userid, firstRun, allUsernames, skipped):
     url = url_head + userid
     data = requests.get(url)
     try:
         username = re.findall("\(@(.*?)\) on Twitter", data.text.replace("\n",""))[0]
         allUsernames.append(username)
-        runMsg(username, firstRun)
+        runMsg(username, firstRun, allUsernames, skipped)
     except IndexError:
         skipped.append(userid)
         print(f"{len(skipped)} in skipped: {userid} | twitter timeout, please wait...")
@@ -79,31 +76,36 @@ def fetchKeybase(my_followers):
     # Extract usernames as list from filtered data
     with open(filtered, 'r') as f:
         data = f.read().replace('\n', '')
-    usernames = re.findall("Identifying \[1m(.*?)", data)
+    usernamesOnKeybase = re.findall("Identifying \[1m(.*?)", data)
 
     # Clean up temp files
     shutil.rmtree("results/temp")
 
-    return usernames
+    return usernamesOnKeybase
 
+def getTwitterUsernames():
+    allUsernames = []
+    skipped = []
 
-def run():
-    # To do: clean up this logic and make allUsernames/skipped
-    # not global variables
     firstRun = True
     for i in dataIn:
         userid = i['following']['accountId']
-        fetchUsername(userid, firstRun)
-    firstRun = False
+        fetchUsername(userid, firstRun, allUsernames, skipped)
 
+    firstRun = False
     while len(skipped)>0:
         userid = skipped.pop()
-        fetchUsername(userid, firstRun)
+        fetchUsername(userid, firstRun, allUsernames, skipped)
 
-    usernames = fetchKeybase(allUsernames)
+    return allUsernames
+
+def run():
+    allUsernames = getTwitterUsernames()
+    usernamesOnKeybase = fetchKeybase(allUsernames)
+
     # Write usernames list to file
     with open(resultsOut, 'w') as results:
-        results.write("usernames = " + str(usernames))
+        results.write("usernames = " + str(usernamesOnKeybase))
     print(f"Usernames on Keybase have been filtered and placed at '{resultsOut}'")
 
 if __name__ == "__main__":
