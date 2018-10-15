@@ -13,7 +13,7 @@ The Keybase comparisons are done by calling `$ keybase id [username]@twitter` fr
 Keybase needs to be [installed locally](https://keybase.io/download) since the script makes use of a keybase command line call to work. 
 
 #### Twitter list of users
-Your respective Twitter list can be gotten by "requesting your data" under your Twitter settings. Specifically, the `followers` and `following.js` files are what this script is designed to work with from the bundle that Twitter returns.
+Your respective Twitter list can be gotten by ["requesting your data"](https://help.twitter.com/en/managing-your-account/how-to-download-your-twitter-archive) under your Twitter settings. Specifically, the `followers` and `following.js` files are what this script is designed to work with from the bundle that Twitter returns.
 
 ## To run
 To run, simply place your Twitter user file into the `data` folder and then run `run.py` using:
