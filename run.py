@@ -110,7 +110,7 @@ def getTwitterUsernames():
 
 
 def run():
-    allUsernames = getTwitterUsernames()
+    allUsernames = getTwitterUsernames() #replace this assignment if alternative Twitter list source
     usernamesOnKeybase = fetchKeybase(allUsernames)
 
     # Write usernames list to file
