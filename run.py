@@ -19,6 +19,7 @@ resultsOut = 'results/onKeybase.txt'
 # set Twitter lookup URL
 url_head = 'https://twitter.com/intent/user?user_id='
 
+
 # get the Twitter userID list data
 def getData(readFile):
     writeFile = 'results/temp/data.txt'
@@ -26,11 +27,12 @@ def getData(readFile):
         for i, line in enumerate(r):
             if i == 0:
                 trunc = re.findall('= (.*)', line)[0]
-                w.write(trunc+'\n')
+                w.write(trunc + '\n')
             else:
                 w.write(line)
     with open(writeFile, 'r') as w:
         return ast.literal_eval(w.read())
+
 
 dataIn = getData(datafile)
 
@@ -42,11 +44,12 @@ def runMsg(username, firstRun, allUsernames, skipped):
     else:
         print(f"{len(allUsernames)} of {len(dataIn)}: @{username} | in skipped #{len(skipped)}")
 
+
 def fetchUsername(userid, firstRun, allUsernames, skipped):
     url = url_head + userid
     data = requests.get(url)
     try:
-        username = re.findall("\(@(.*?)\) on Twitter", data.text.replace("\n",""))[0]
+        username = re.findall("\(@(.*?)\) on Twitter", data.text.replace("\n", ""))[0]
         allUsernames.append(username)
         runMsg(username, firstRun, allUsernames, skipped)
     except IndexError:
@@ -56,20 +59,21 @@ def fetchUsername(userid, firstRun, allUsernames, skipped):
         # so this is to store failed attempts during timeout
         # and retry at the end of the cycle.
 
+
 def fetchKeybase(my_followers):
     scraped = 'results/temp/scrape.txt'
     filtered = 'results/temp/filtered.txt'
 
     # Scrape twitter usernames against Keybase
-    open(scraped, 'w').close() # creates/clears file
+    open(scraped, 'w').close()  # creates/clears file
     for i, foll in enumerate(my_followers):
         callable = foll + "@twitter"
         print(f"Retrieving {i+1} of {len(my_followers)}: {callable}...")
         with open(scraped, 'a') as s:
-            call(["keybase","id",callable], stdout=s, stderr=s)
+            call(["keybase", "id", callable], stdout=s, stderr=s)
 
     # Filter out names not found
-    open(filtered, 'w').close() # creates/clears file
+    open(filtered, 'w').close()  # creates/clears file
     check = 'No resolution found'
     with open(scraped, 'r') as s:
         for line in s:
@@ -87,6 +91,7 @@ def fetchKeybase(my_followers):
 
     return usernamesOnKeybase
 
+
 def getTwitterUsernames():
     allUsernames = []
     skipped = []
@@ -97,7 +102,7 @@ def getTwitterUsernames():
         fetchUsername(userid, firstRun, allUsernames, skipped)
 
     firstRun = False
-    while len(skipped)>0:
+    while len(skipped) > 0:
         userid = skipped.pop()
         fetchUsername(userid, firstRun, allUsernames, skipped)
 
