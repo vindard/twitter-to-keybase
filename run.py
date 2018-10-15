@@ -1,6 +1,6 @@
 import requests
 import re, ast
-import os, shutil
+import os, sys, shutil
 from subprocess import call
 
 # Files
@@ -34,7 +34,12 @@ def getData(readFile):
         return ast.literal_eval(w.read())
 
 
-dataIn = getData(datafile)
+try:
+    dataIn = getData(datafile)
+except NameError:
+    print("Error: Data file is missing from 'data/' directory.")
+    sys.exit(1)
+
 
 
 # Processing functions
