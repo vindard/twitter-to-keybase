@@ -16,5 +16,5 @@ Keybase needs to be [installed locally](https://keybase.io/download) since the s
 Your respective Twitter list can be gotten by ["requesting your data"](https://help.twitter.com/en/managing-your-account/how-to-download-your-twitter-archive) under your Twitter settings. Specifically, the `followers.j` and `following.js` files are what this script is designed to work with from the bundle that Twitter returns.
 
 ## To run
-To run, simply place your Twitter user file into the `data` folder and then run `run.py` using:
+Simply place your Twitter user file into the `data` folder and then run `run.py` using:
 `$ python3 run.py`
