@@ -8,11 +8,14 @@ folders = [r'results', r'results/temp']
 for f in folders:
     if not os.path.exists(f):
         os.makedirs(f)
+
 # find the data file, assign to 'dataIn' variable
+allFiles = []
 for filename in os.listdir('data'):
     if '.js' in filename:
-        datafile = 'data/' + filename
-        break
+        allFiles.append(filename)
+
+
 # set the results file
 resultsOut = 'results/onKeybase.txt'
 
@@ -34,8 +37,11 @@ def getData(readFile):
         return ast.literal_eval(w.read())
 
 
+dataIn = []
 try:
-    dataIn = getData(datafile)
+    for f in allFiles:
+        datafile = 'data/' + f
+        dataIn.extend(getData(datafile))
 except NameError:
     print("Error: Data file is missing from 'data/' directory.")
     sys.exit(1)
@@ -55,8 +61,9 @@ def fetchUsername(userid, firstRun, allUsernames, skipped):
     data = requests.get(url)
     try:
         username = re.findall("\(@(.*?)\) on Twitter", data.text.replace("\n", ""))[0]
-        allUsernames.append(username)
-        runMsg(username, firstRun, allUsernames, skipped)
+        if username not in allUsernames:
+            allUsernames.append(username)
+            runMsg(username, firstRun, allUsernames, skipped)
     except IndexError:
         skipped.append(userid)
         print(f"{len(skipped)} in skipped: {userid} | twitter timeout, please wait...")
