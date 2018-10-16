@@ -62,11 +62,10 @@ def fetchUsername(allUserIDs):
             allUsernames.append(username)
             print(f"{len(allUsernames)} of {count}: @{username}")
             timeout = 0
-        except IndexError:
+        except IndexError: # Twitter times out around every 100 lookups
             timeout += 1
             allUserIDs.insert(0, userid)
             print(f"{len(allUsernames)+1}: userID# {userid} failed | twitter timeout (attempt #{timeout}), please wait...")
-            # Twitter pings start returning 404's every 100 lookups
     return allUsernames
 
 
