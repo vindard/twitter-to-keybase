@@ -49,27 +49,25 @@ except NameError:
 
 
 # Processing functions
-def runMsg(username, firstRun, allUsernames, skipped):
-    if firstRun:
-        print(f"{len(allUsernames)} of {len(dataIn)}: @{username}")
-    else:
-        print(f"{len(allUsernames)} of {len(dataIn)}: @{username} | in skipped #{len(skipped)}")
-
-
-def fetchUsername(userid, firstRun, allUsernames, skipped):
-    url = url_head + userid
-    data = requests.get(url)
-    try:
-        username = re.findall("\(@(.*?)\) on Twitter", data.text.replace("\n", ""))[0]
-        if username not in allUsernames:
+def fetchUsername(allUserIDs):
+    allUsernames = []
+    count = len(allUserIDs) + len(allUsernames)
+    timeout = 0
+    while len(allUserIDs) > 0:
+        userid = allUserIDs.pop(0)
+        url = url_head + userid
+        data = requests.get(url)
+        try:
+            username = re.findall("\(@(.*?)\) on Twitter", data.text.replace("\n", ""))[0]
             allUsernames.append(username)
-            runMsg(username, firstRun, allUsernames, skipped)
-    except IndexError:
-        skipped.append(userid)
-        print(f"{len(skipped)} in skipped: {userid} | twitter timeout, please wait...")
-        # Twitter pings start returning 404's every 100 lookups,
-        # so this is to store failed attempts during timeout
-        # and retry at the end of the cycle.
+            print(f"{len(allUsernames)} of {count}: @{username}")
+            timeout = 0
+        except IndexError:
+            timeout += 1
+            allUserIDs.insert(0, userid)
+            print(f"{len(allUsernames)+1}: userID# {userid} failed | twitter timeout (attempt #{timeout}), please wait...")
+            # Twitter pings start returning 404's every 100 lookups
+    return allUsernames
 
 
 def fetchKeybase(my_followers):
@@ -105,20 +103,13 @@ def fetchKeybase(my_followers):
 
 
 def getTwitterUsernames():
-    allUsernames = []
-    skipped = []
-
-    firstRun = True
+    allUserIDs = []
     for i in dataIn:
         userid = i[list(i.keys())[0]]['accountId']
-        fetchUsername(userid, firstRun, allUsernames, skipped)
+        if userid not in allUserIDs:
+            allUserIDs.append(userid)
 
-    firstRun = False
-    while len(skipped) > 0:
-        userid = skipped.pop()
-        fetchUsername(userid, firstRun, allUsernames, skipped)
-
-    return allUsernames
+    return fetchUsername(allUserIDs)
 
 
 def run():
