@@ -2,6 +2,7 @@ import requests
 import re, ast
 import os, sys, shutil
 from subprocess import call
+import json
 
 # Files
 folders = [r'results', r'results/temp']
@@ -116,9 +117,12 @@ def run():
     usernamesOnKeybase = fetchKeybase(allUsernames)
 
     # Write usernames list to file
+    usernamesJSON = json.dumps(usernamesOnKeybase, indent=2)
     with open(resultsOut, 'w') as results:
-        results.write("usernames = " + str(usernamesOnKeybase))
-    print(f"Usernames on Keybase have been filtered and placed at '{resultsOut}'")
+        results.write(f"usernames = {usernamesJSON}")
+    b, _b = '\033[1m', '\033[0m'
+    print(f"\n\nYOU HAVE {len(usernamesOnKeybase)} TWITTER USERS ON KEYBASE:\n{usernamesJSON[1:-3]}")
+    print(f"\n*** Usernames on Keybase have been placed at {b}'{resultsOut}'{_b}. ***\n")
 
 
 if __name__ == "__main__":
