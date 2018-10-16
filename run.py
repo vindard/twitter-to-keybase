@@ -103,7 +103,7 @@ def getTwitterUsernames():
 
     firstRun = True
     for i in dataIn:
-        userid = i['following']['accountId']
+        userid = i[list(i.keys())[0]]['accountId']
         fetchUsername(userid, firstRun, allUsernames, skipped)
 
     firstRun = False
