@@ -66,8 +66,6 @@ def fetchUsername(allUserIDs):
         url = url_head + userid
         data = requests.get(url)
         try:
-            #if len(allUsernames) > 1:
-            #    [][0] # simulate IndexError
             username = re.findall("\(@(.*?)\) on Twitter", data.text.replace("\n", ""))[0]
             allUsernames.append(username)
             print(f"{len(allUsernames)} of {count}: @{username}")
