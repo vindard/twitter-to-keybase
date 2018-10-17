@@ -2,7 +2,7 @@ import requests
 import re, ast
 import os, sys, shutil
 from subprocess import call
-import json
+import json, time
 
 # Files
 folders = [r'results', r'results/temp']
@@ -54,19 +54,40 @@ def fetchUsername(allUserIDs):
     allUsernames = []
     count = len(allUserIDs) + len(allUsernames)
     timeout = 0
+    attempts = 40
     while len(allUserIDs) > 0:
+        if timeout >= attempts:
+            time.sleep(1)
+            http_error = data.status_code
+            print(f"Twitter endpoint exhausted. Please try again in 1 minute.")
+            print(f"([HTTP {http_error} Code] for reference)\n")
+            sys.exit(10)
         userid = allUserIDs.pop(0)
         url = url_head + userid
         data = requests.get(url)
         try:
+            #if len(allUsernames) > 1:
+            #    [][0] # simulate IndexError
             username = re.findall("\(@(.*?)\) on Twitter", data.text.replace("\n", ""))[0]
             allUsernames.append(username)
             print(f"{len(allUsernames)} of {count}: @{username}")
             timeout = 0
         except IndexError: # Twitter times out around every 100 lookups
+            warn, bold, _end= '\033[93m', '\033[1m', '\033[0m'
+            dots = [".  ", ".. ", "..."]
+
+            if timeout == 0:
+                print(f"{warn}{len(allUsernames)+1} of {count}: userID #{userid} failed{_end}")
+            else:
+                print(end="\033[F" * 4)
+
             timeout += 1
             allUserIDs.insert(0, userid)
-            print(f"{len(allUsernames)+1}: userID# {userid} failed | twitter timeout (attempt #{timeout}), please wait...")
+
+            print(f"\nTwitter request limit temporarily exceeded.", \
+                    f"Will try {bold}{attempts} attempts{_end} to regain connection.")
+            print(f"(Attempt {warn}#{timeout} of {attempts}{_end}), please wait{dots[timeout%3]}\n")
+
     return allUsernames
 
 
