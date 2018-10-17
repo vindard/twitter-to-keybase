@@ -18,7 +18,9 @@ for filename in os.listdir('data'):
 
 
 # set the results file
+parsedUsernames = 'results/temp/parsedUsernames.txt'
 resultsOut = 'results/onKeybase.txt'
+open(parsedUsernames, 'a').close() # makes file if it doesn't exist
 
 # set Twitter lookup URL
 url_head = 'https://twitter.com/intent/user?user_id='
@@ -50,25 +52,63 @@ except NameError:
 
 
 # Processing functions
+def processedUsers():
+    processedUserIDs = []
+    lookupDict = {}
+    with open(parsedUsernames, 'r') as p:
+        try:
+            processed = ast.literal_eval(p.read().replace('\n', ''))
+        except SyntaxError:
+            processed = []
+    for userDict in processed:
+        for k, v in userDict.items():
+            processedUserIDs.append(k)
+            lookupDict[k] = v
+    return processedUserIDs, processed, lookupDict
+
+
 def fetchUsername(allUserIDs):
-    allUsernames = []
-    count = len(allUserIDs) + len(allUsernames)
     timeout = 0
     attempts = 40
+    allUsernames = []
+    count = len(allUserIDs)
+    processedUserIDs, processed, lookupDict = processedUsers()
+    pingMsg, fileMsg = "pinging Twitter...", "(from file) |"
+
     while len(allUserIDs) > 0:
+        # logic for loop counter
         if timeout >= attempts:
             time.sleep(1)
             http_error = data.status_code
             print(f"Twitter endpoint exhausted. Please try again in 1 minute.")
             print(f"([HTTP {http_error} Code] for reference)\n")
             sys.exit(10)
+
         userid = allUserIDs.pop(0)
+
+        # check processed file first for userid
+        if userid in processedUserIDs:
+            username = lookupDict[userid]
+            allUsernames.append(username)
+            print(f"{fileMsg} {len(allUsernames)} of {count}: @{lookupDict[userid]}")
+            continue
+
+        # ping Twitter if userid not found in processed file
+        time.sleep(0.1)
+        print(pingMsg)
         url = url_head + userid
         data = requests.get(url)
         try:
             username = re.findall("\(@(.*?)\) on Twitter", data.text.replace("\n", ""))[0]
             allUsernames.append(username)
-            print(f"{len(allUsernames)} of {count}: @{username}")
+            userDict = {userid: username}
+            processed.append(userDict)
+            print(end="\033[F")
+            print(f"{pingMsg} {len(allUsernames)} of {count}: @{username}")
+
+            with open(parsedUsernames, 'r+') as p:
+                p.write(str(processed))
+
             timeout = 0
         except IndexError: # Twitter times out around every 100 lookups
             warn, bold, _end= '\033[93m', '\033[1m', '\033[0m'
