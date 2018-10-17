@@ -69,7 +69,7 @@ def processedUsers():
 
 def fetchUsername(allUserIDs):
     timeout = 0
-    attempts = 40
+    attempts = 10
     allUsernames = []
     count = len(allUserIDs)
     processedUserIDs, processed, lookupDict = processedUsers()
