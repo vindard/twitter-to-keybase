@@ -12,9 +12,22 @@ for f in folders:
 
 # find the data file, assign to 'dataIn' variable
 allFiles = []
+filesToExtract = ['following.js', 'follower.js']
+zipFound = False
 for filename in os.listdir('data'):
-    if '.js' in filename:
-        allFiles.append(filename)
+    if is_zipfile(filename):
+        zipFound = True
+        with ZipFile(filename, 'r') as unzipped:
+            for f in filesToExtract:                
+                try:                
+                    unzipped.extract(f)
+                    allFiles.append(f)
+                except KeyError:
+                    pass
+if not(zipFound):
+    for filename in os.listdir('data'):
+        if '.js' in filename:
+            allFiles.append(filename)
 
 
 # set the results file
