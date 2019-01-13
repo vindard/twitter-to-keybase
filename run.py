@@ -133,7 +133,7 @@ def fetchUsername(allUserIDs):
             if timeout == 0:
                 print(f"{warn}{len(allUsernames)+1} of {count}: userID #{userid} failed{_end}")
             else:
-                print(end="\033[F" * 4)
+                print(end="\033[F" * 5)
 
             timeout += 1
             allUserIDs.insert(0, userid)
