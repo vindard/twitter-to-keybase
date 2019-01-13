@@ -13,12 +13,14 @@ for f in folders:
 
 # find the data file, assign to 'dataIn' variable
 allFiles = []
+datadir = 'data'
 filesToExtract = ['following.js', 'follower.js']
 zipFound = False
-for filename in os.listdir('data'):
-    if is_zipfile(filename):
+for filename in os.listdir(datadir):
+    fileAtLocation = f"{datadir}/{filename}"
+    if is_zipfile(fileAtLocation):
         zipFound = True
-        with ZipFile(filename, 'r') as unzipped:
+        with ZipFile(fileAtLocation, 'r') as unzipped:
             for f in filesToExtract:                
                 try:                
                     unzipped.extract(f)
@@ -26,7 +28,7 @@ for filename in os.listdir('data'):
                 except KeyError:
                     pass
 if not(zipFound):
-    for filename in os.listdir('data'):
+    for filename in os.listdir(datadir):
         if '.js' in filename:
             allFiles.append(filename)
 
@@ -57,7 +59,7 @@ def getData(readFile):
 dataIn = []
 try:
     for f in allFiles:
-        datafile = 'data/' + f
+        datafile = f"{datadir}/{f}"
         dataIn.extend(getData(datafile))
 except NameError:
     print("Error: Data file is missing from 'data/' directory.")
