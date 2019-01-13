@@ -3,6 +3,7 @@ import re, ast
 import os, sys, shutil
 from subprocess import call
 import json, time
+from zipfile import ZipFile, is_zipfile
 
 # Files
 folders = [r'results', r'results/temp']
