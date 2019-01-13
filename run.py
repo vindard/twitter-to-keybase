@@ -23,7 +23,7 @@ for filename in os.listdir(datadir):
         with ZipFile(fileAtLocation, 'r') as unzipped:
             for f in filesToExtract:                
                 try:                
-                    unzipped.extract(f)
+                    unzipped.extract(f, datadir)
                     allFiles.append(f)
                 except KeyError:
                     pass
