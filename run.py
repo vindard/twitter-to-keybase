@@ -3,6 +3,7 @@ import re, ast
 import os, sys, shutil
 from subprocess import call
 import json, time
+from zipfile import ZipFile, is_zipfile
 
 # Files
 folders = [r'results', r'results/temp']
@@ -12,9 +13,24 @@ for f in folders:
 
 # find the data file, assign to 'dataIn' variable
 allFiles = []
-for filename in os.listdir('data'):
-    if '.js' in filename:
-        allFiles.append(filename)
+datadir = 'data'
+filesToExtract = ['following.js', 'follower.js']
+zipFound = False
+for filename in os.listdir(datadir):
+    fileAtLocation = f"{datadir}/{filename}"
+    if is_zipfile(fileAtLocation):
+        zipFound = True
+        with ZipFile(fileAtLocation, 'r') as unzipped:
+            for f in filesToExtract:                
+                try:                
+                    unzipped.extract(f, datadir)
+                    allFiles.append(f)
+                except KeyError:
+                    pass
+if not(zipFound):
+    for filename in os.listdir(datadir):
+        if '.js' in filename:
+            allFiles.append(filename)
 
 
 # set the results file
@@ -43,7 +59,7 @@ def getData(readFile):
 dataIn = []
 try:
     for f in allFiles:
-        datafile = 'data/' + f
+        datafile = f"{datadir}/{f}"
         dataIn.extend(getData(datafile))
 except NameError:
     print("Error: Data file is missing from 'data/' directory.")
@@ -117,7 +133,7 @@ def fetchUsername(allUserIDs):
             if timeout == 0:
                 print(f"{warn}{len(allUsernames)+1} of {count}: userID #{userid} failed{_end}")
             else:
-                print(end="\033[F" * 4)
+                print(end="\033[F" * 5)
 
             timeout += 1
             allUserIDs.insert(0, userid)
